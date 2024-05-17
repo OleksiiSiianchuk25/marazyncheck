@@ -16,9 +16,6 @@ public class Product {
     @Column(length = 100, nullable = false)
     private String name;
 
-    @Lob
-    private byte[] image;
-
     @Column(nullable = false)
     private Integer quantity;
 
@@ -27,6 +24,9 @@ public class Product {
 
     @Column(name = "weight_or_volume", precision = 10, scale = 2, nullable = false)
     private BigDecimal weightOrVolume;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

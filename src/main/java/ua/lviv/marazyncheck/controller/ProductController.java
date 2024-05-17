@@ -26,9 +26,17 @@ public class ProductController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public List<Product> getAllProducts() {
         return productService.findAll();
+    }
+
+    @GetMapping
+    public List<Product> getFilteredProducts(@RequestParam(required = false) List<Integer> categories) {
+        if (categories == null || categories.isEmpty()) {
+            return productService.findAll();
+        }
+        return productService.findByCategories(categories);
     }
 
     @DeleteMapping("/{id}")

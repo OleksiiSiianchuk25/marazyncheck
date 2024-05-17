@@ -10,4 +10,6 @@ public interface ProductService {
     Optional<Product> findById(Integer id);
     List<Product> findAll();
     void deleteById(Integer id);
+
+    public List<Product> findByCategories(List<Integer> categories);
 }
