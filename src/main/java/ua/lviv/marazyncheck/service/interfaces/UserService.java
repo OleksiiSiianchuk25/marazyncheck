@@ -10,4 +10,6 @@ public interface UserService {
     Optional<User> findById(Integer id);
     List<User> findAll();
     void deleteById(Integer id);
+
+    Optional<User> findByEmail(String email);
 }

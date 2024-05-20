@@ -21,13 +21,13 @@ public class User {
     @Column(length = 100, nullable = false)
     private String password;
 
-    @Column(length = 50)
+    @Column(length = 50, unique = true)
     private String telegram;
 
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Order> orders;
 }
