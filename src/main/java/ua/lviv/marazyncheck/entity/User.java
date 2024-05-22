@@ -30,4 +30,29 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Order> orders;
+
+    @Override
+    public int hashCode() {
+        return 31 + ((id == null) ? 0 : id.hashCode());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        User other = (User) obj;
+        return id != null && id.equals(other.id);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", telegram='" + telegram + '\'' +
+                ", role=" + role +
+                '}';
+    }
 }

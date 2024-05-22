@@ -1,6 +1,7 @@
 package ua.lviv.marazyncheck.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import java.util.Date;
 import java.util.Set;
@@ -21,11 +22,28 @@ public class Order {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
-    @ManyToMany
-    @JoinTable(
-            name = "orderedproducts",
-            joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
-    private Set<Product> products;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<OrderedProduct> orderedProducts;
+
+    @Override
+    public int hashCode() {
+        return 31 + ((id == null) ? 0 : id.hashCode());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Order other = (Order) obj;
+        return id != null && id.equals(other.id);
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                '}';
+    }
 }

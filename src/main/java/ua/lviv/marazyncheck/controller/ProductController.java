@@ -3,6 +3,7 @@ package ua.lviv.marazyncheck.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ua.lviv.marazyncheck.dto.ProductDTO;
 import ua.lviv.marazyncheck.entity.Product;
 import ua.lviv.marazyncheck.service.interfaces.ProductService;
 
@@ -31,12 +32,28 @@ public class ProductController {
         return productService.findAll();
     }
 
+//    @GetMapping
+//    public List<Product> getFilteredProducts(@RequestParam(required = false) List<Integer> categories) {
+//        if (categories == null || categories.isEmpty()) {
+//            return productService.findAll();
+//        }
+//        return productService.findByCategories(categories);
+//    }
+
+//    @GetMapping
+//    public List<Product> getFilteredProducts(@RequestParam(required = false) List<Integer> categories) {
+//        if (categories == null || categories.isEmpty()) {
+//            return productService.findAll();
+//        }
+//        return productService.findByCategories(categories);
+//    }
+
     @GetMapping
-    public List<Product> getFilteredProducts(@RequestParam(required = false) List<Integer> categories) {
-        if (categories == null || categories.isEmpty()) {
-            return productService.findAll();
-        }
-        return productService.findByCategories(categories);
+    public ResponseEntity<List<ProductDTO>> getFilteredProducts(@RequestParam(required = false) List<Integer> categories) {
+        List<ProductDTO> products = categories == null || categories.isEmpty()
+                ? productService.findAllDto()
+                : productService.findByCategoriesDto(categories);
+        return ResponseEntity.ok(products);
     }
 
     @DeleteMapping("/{id}")
