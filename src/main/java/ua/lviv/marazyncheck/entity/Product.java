@@ -2,8 +2,8 @@ package ua.lviv.marazyncheck.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.util.Set;
 import java.math.BigDecimal;
+import java.util.Set;
 
 @Data
 @Entity
@@ -32,6 +32,6 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @ManyToMany(mappedBy = "products")
-    private Set<Order> orders;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<OrderedProduct> orderedProducts;
 }
