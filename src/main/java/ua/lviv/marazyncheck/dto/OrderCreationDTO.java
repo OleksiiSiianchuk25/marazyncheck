@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @ToString
-public class OrderCreationDto {
+public class OrderCreationDTO {
     private Integer userId;
     private List<OrderItemDto> items;
 

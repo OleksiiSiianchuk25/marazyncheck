@@ -2,6 +2,7 @@ package ua.lviv.marazyncheck.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -10,6 +11,7 @@ import ua.lviv.marazyncheck.entity.User;
 import ua.lviv.marazyncheck.service.interfaces.UserService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,18 +27,18 @@ public class UserDetailsServiceImplementation implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> user = userService.findByEmail(username);
-        System.out.println(user);
-
-        if(user.isEmpty()) {
-            throw new UsernameNotFoundException("User not found with this email"+username);
+        if (!user.isPresent()) {
+            throw new UsernameNotFoundException("User not found with this email: " + username);
         }
+        return createUserDetails(user.get());
+    }
 
-
-        System.out.println("Loaded user: " + user.get().getEmail() + ", Role: " + user.get().getRole());
-        List<GrantedAuthority> authorities = new ArrayList<>();
+    public UserDetails createUserDetails(User user) {
+        GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().getName());
         return new org.springframework.security.core.userdetails.User(
-                user.get().getEmail(),
-                user.get().getPassword(),
-                authorities);
+                user.getEmail(),
+                user.getPassword(),
+                Collections.singletonList(authority)
+        );
     }
 }

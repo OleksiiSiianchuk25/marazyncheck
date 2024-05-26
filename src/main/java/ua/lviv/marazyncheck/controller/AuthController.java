@@ -3,8 +3,10 @@ package ua.lviv.marazyncheck.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,12 +25,12 @@ import ua.lviv.marazyncheck.service.interfaces.UserService;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private UserService userService;
-    private PasswordEncoder passwordEncoder;
-    private UserDetailsService userDetailsService;
-    private AuthenticationManager authenticationManager;
-    private JwtTokenUtil jwtTokenUtil;
-    private RoleService roleService;
+    private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
+    private final UserDetailsService userDetailsService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final RoleService roleService;
 
     @Autowired
     public AuthController(UserService userService,
@@ -48,16 +50,16 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
         if (userService.findByEmail(registerRequest.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Email is already in use!");
+            return ResponseEntity.badRequest().body("Така електронна пошта вже використовується!");
         }
         User newUser = new User();
         newUser.setName(registerRequest.getName());
         newUser.setEmail(registerRequest.getEmail());
         newUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        newUser.setRole(roleService.findById(2).orElseThrow(() -> new RuntimeException("Role not found"))); // Adjust as necessary
         newUser.setTelegram(registerRequest.getTelegram());
-        newUser.setRole(roleService.findById(2).get());
         userService.save(newUser);
-        return ResponseEntity.ok("User registered successfully!");
+        return ResponseEntity.ok("Користувач успішно зареєстрований!");
     }
 
     @PostMapping("/login")
@@ -66,8 +68,8 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
         );
         SecurityContextHolder.getContext().setAuthentication(authenticate);
-        final String token = jwtTokenUtil.generateToken(authenticate.getName());
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getEmail());
+        final String token = jwtTokenUtil.generateToken(userDetails);
         return ResponseEntity.ok(new JwtResponse(token));
     }
-
 }

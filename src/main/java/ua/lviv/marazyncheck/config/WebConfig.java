@@ -16,6 +16,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import ua.lviv.marazyncheck.security.JwtRequestFilter;
+import ua.lviv.marazyncheck.security.JwtTokenUtil;
 import ua.lviv.marazyncheck.service.UserDetailsServiceImplementation;
 
 import java.util.Arrays;
@@ -24,11 +25,15 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class WebConfig {
 
-    @Autowired
-    private UserDetailsServiceImplementation userDetailsService;
+    private final UserDetailsServiceImplementation userDetailsService;
+    private final JwtTokenUtil jwtTokenUtil;
 
     @Autowired
-    private JwtRequestFilter jwtRequestFilter;
+    public WebConfig(UserDetailsServiceImplementation userDetailsService,
+                     JwtTokenUtil jwtTokenUtil) {
+        this.userDetailsService = userDetailsService;
+        this.jwtTokenUtil = jwtTokenUtil;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -41,7 +46,7 @@ public class WebConfig {
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtRequestFilter(userDetailsService, jwtTokenUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -50,7 +55,7 @@ public class WebConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         configuration.setAllowCredentials(true);
 
@@ -59,13 +64,4 @@ public class WebConfig {
         return source;
     }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 }
