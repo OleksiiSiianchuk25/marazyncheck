@@ -12,8 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import ua.lviv.marazyncheck.dto.LoginRequest;
-import ua.lviv.marazyncheck.dto.RegisterRequest;
+import ua.lviv.marazyncheck.dto.*;
 import ua.lviv.marazyncheck.entity.User;
 import ua.lviv.marazyncheck.security.JwtRequest;
 import ua.lviv.marazyncheck.security.JwtResponse;
@@ -71,5 +70,27 @@ public class AuthController {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getEmail());
         final String token = jwtTokenUtil.generateToken(userDetails);
         return ResponseEntity.ok(new JwtResponse(token));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+        userService.sendResetCode(forgotPasswordRequest.getEmail());
+        return ResponseEntity.ok("Код для скидання паролю надіслано на електронну пошту.");
+    }
+
+    @PostMapping("/verify-code")
+    public ResponseEntity<?> verifyCode(@RequestBody VerifyCodeRequest verifyCodeRequest) {
+        boolean isValid = userService.verifyResetCode(verifyCodeRequest.getEmail(), verifyCodeRequest.getCode());
+        if (isValid) {
+            return ResponseEntity.ok("Код підтверджено.");
+        } else {
+            return ResponseEntity.badRequest().body("Неправильний код.");
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+        userService.resetPassword(resetPasswordRequest.getEmail(), resetPasswordRequest.getCode(), resetPasswordRequest.getNewPassword());
+        return ResponseEntity.ok("Password reset successful.");
     }
 }

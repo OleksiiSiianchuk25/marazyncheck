@@ -62,7 +62,7 @@ public class OrderServiceImpl implements OrderService {
             if (productOpt.isPresent()) {
                 Product product = productOpt.get();
                 if (product.getQuantity() < item.getQuantity()) {
-                    throw new RuntimeException("Недостатня кількість товару: " + product.getName() + ". Available: " + product.getQuantity());
+                    throw new RuntimeException("Недостатня кількість товару: " + product.getName() + ". Доступно до замовлення: " + product.getQuantity());
                 }
                 OrderedProduct orderedProduct = new OrderedProduct();
                 orderedProduct.setOrder(order);

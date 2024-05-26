@@ -21,4 +21,7 @@ public interface UserService {
     void updateUserInfo(User user, UserUpdateDTO userUpdateDTO);
     boolean emailExists(String email);
     boolean updateUser(UserDTO userDTO);
+    void sendResetCode(String email);
+    boolean verifyResetCode(String email, String code);
+    void resetPassword(String email, String code, String newPassword);
 }
